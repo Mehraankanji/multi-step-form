@@ -1,6 +1,6 @@
 # Multi-Step Claim Form (React + Vite)
 
-A modern **multi-step claim form application** built using **React + Vite**.  
+A **multi-step insured claim form application** built using **React + Vite**.  
 ---
 
 ## 🚀 Tech Stack
