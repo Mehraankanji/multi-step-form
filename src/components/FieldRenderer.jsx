@@ -9,6 +9,7 @@ import {
 } from "../constants/declarationText";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { cn } from "../lib/utils";
 
 export const NO_AUTOFILL_TYPES = ["file", "checkbox", "declaration"];
 
@@ -45,10 +46,8 @@ export default function FieldRenderer({
   sectionKey,
 }) {
   const isAgeField = field.name === "age";
-
   const isAutoFilledField =
     AUTO_FILLED_FIELDS_MAP?.[part]?.[sectionKey]?.includes(field.name) ?? false;
-
   const shouldDisable = isAgeField || isAutoFilledField;
 
   const handleInputChange = (e) => {
@@ -56,7 +55,6 @@ export default function FieldRenderer({
 
     if (field.type === "number" || field.type === "phone")
       val = val.replace(/\D/g, "");
-
     if (field.name === "pincode") val = val.slice(0, 6);
     if (field.type === "phone") val = val.slice(0, 10);
 
@@ -97,24 +95,21 @@ export default function FieldRenderer({
   };
 
   const getMaxValue = () => {
-    if (field.type === "date") {
-      return new Date().toISOString().split("T")[0];
-    }
-
-    if (field.type === "datetime-local") {
+    if (field.type === "date") return new Date().toISOString().split("T")[0];
+    if (field.type === "datetime-local")
       return new Date().toISOString().slice(0, 16);
-    }
-
     return undefined;
   };
 
+  // Render
   return (
     <div
-      className={`flex flex-col ${
-        ["expense-group", "checkbox-group", "yes-no-group"].includes(field.type)
-          ? "col-span-2"
-          : ""
-      }`}
+      className={cn(
+        "flex flex-col",
+        ["expense-group", "checkbox-group", "yes-no-group"].includes(
+          field.type
+        ) && "col-span-2"
+      )}
     >
       <Label className="mb-1 text-sm font-semibold text-gray-800">
         {field.label}
@@ -126,7 +121,6 @@ export default function FieldRenderer({
           {field.options.map((opt) => {
             const totalLabel = field.options[field.options.length - 1];
             const isTotal = opt === totalLabel;
-
             return (
               <div
                 key={opt}
@@ -143,11 +137,11 @@ export default function FieldRenderer({
                     updated[totalLabel] = calculateTotalExpense(updated);
                     fieldApi.handleChange(updated);
                   }}
-                  className={`px-3 py-2 rounded-md ${
-                    isTotal
-                      ? "bg-blue-50 border-2 border-red-500 text-red-600 font-bold cursor-not-allowed"
-                      : "border"
-                  }`}
+                  className={cn(
+                    "px-3 py-2 rounded-md border",
+                    isTotal &&
+                      "bg-blue-50 border-2 border-red-500 text-red-600 font-bold cursor-not-allowed"
+                  )}
                 />
               </div>
             );
@@ -155,7 +149,7 @@ export default function FieldRenderer({
         </div>
       )}
 
-      {/* CHECKBOX GROUP */}
+      {/* CHECKBOX / YES-NO / RADIO / DECLARATION */}
       {field.type === "checkbox-group" && (
         <div className="flex flex-col gap-2">
           {field.options.map((opt) => (
@@ -163,13 +157,12 @@ export default function FieldRenderer({
               <input
                 type="checkbox"
                 checked={fieldApi.state.value?.[opt] === true}
-                onChange={(e) => {
+                onChange={(e) =>
                   fieldApi.handleChange({
                     ...fieldApi.state.value,
                     [opt]: e.target.checked,
-                  });
-                  fieldApi.handleBlur();
-                }}
+                  })
+                }
               />
               {opt}
             </label>
@@ -177,69 +170,31 @@ export default function FieldRenderer({
         </div>
       )}
 
-      {/* YES / NO GROUP */}
       {field.type === "yes-no-group" && (
         <div className="flex flex-col gap-2">
           {field.options.map((opt) => (
             <div key={opt} className="flex items-center gap-3">
               <span>{opt}</span>
-
-              <label className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  checked={fieldApi.state.value?.[opt] === "Yes"}
-                  onChange={() => {
-                    fieldApi.handleChange({
-                      ...fieldApi.state.value,
-                      [opt]: "Yes",
-                    });
-                    fieldApi.handleBlur();
-                  }}
-                />
-                Yes
-              </label>
-
-              <label className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  checked={fieldApi.state.value?.[opt] === "No"}
-                  onChange={() => {
-                    fieldApi.handleChange({
-                      ...fieldApi.state.value,
-                      [opt]: "No",
-                    });
-                    fieldApi.handleBlur();
-                  }}
-                />
-                No
-              </label>
+              {["Yes", "No"].map((v) => (
+                <label key={v} className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    checked={fieldApi.state.value?.[opt] === v}
+                    onChange={() =>
+                      fieldApi.handleChange({
+                        ...fieldApi.state.value,
+                        [opt]: v,
+                      })
+                    }
+                  />
+                  {v}
+                </label>
+              ))}
             </div>
           ))}
         </div>
       )}
 
-      {/* DECLARATION */}
-      {field.type === "declaration" && (
-        <div className="p-4 border rounded-lg bg-gray-50 text-sm leading-6">
-          <p>
-            {part === "A" ? DECLARATION_TEXT_FIRST : DECLARATION_TEXT_SECOND}
-          </p>
-
-          <label className="mt-3 flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={fieldApi.state.value === true}
-              onChange={(e) => {
-                fieldApi.handleChange(e.target.checked);
-                fieldApi.handleBlur();
-              }}
-            />
-            <span>I agree to the above declaration</span>
-          </label>
-        </div>
-      )}
-
-      {/* RADIO */}
       {field.type === "radio" && field.options && (
         <div className="flex gap-3">
           {field.options.map((opt) => (
@@ -247,14 +202,27 @@ export default function FieldRenderer({
               <input
                 type="radio"
                 checked={fieldApi.state.value === opt}
-                onChange={() => {
-                  fieldApi.handleChange(opt);
-                  fieldApi.handleBlur();
-                }}
+                onChange={() => fieldApi.handleChange(opt)}
               />
               {opt}
             </label>
           ))}
+        </div>
+      )}
+
+      {field.type === "declaration" && (
+        <div className="p-4 border rounded-lg bg-gray-50 text-sm leading-6">
+          <p>
+            {part === "A" ? DECLARATION_TEXT_FIRST : DECLARATION_TEXT_SECOND}
+          </p>
+          <label className="mt-3 flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={fieldApi.state.value === true}
+              onChange={(e) => fieldApi.handleChange(e.target.checked)}
+            />
+            <span>I agree to the above declaration</span>
+          </label>
         </div>
       )}
 
@@ -275,25 +243,18 @@ export default function FieldRenderer({
           max={getMaxValue()}
           onChange={(e) => {
             if (shouldDisable) return;
-
             if (field.type === "file") {
               const file = e.target.files?.[0];
               if (!file) return;
-
               const reader = new FileReader();
-              reader.onload = () => {
-                fieldApi.handleChange(reader.result);
-                fieldApi.handleBlur();
-              };
+              reader.onload = () => fieldApi.handleChange(reader.result);
               reader.readAsDataURL(file);
-            } else {
-              handleInputChange(e);
-            }
+            } else handleInputChange(e);
           }}
-          onBlur={!shouldDisable ? fieldApi.handleBlur : undefined}
-          className={`px-3 py-3 border rounded-md text-sm ${
+          className={cn(
+            "px-3 py-3 border rounded-md text-sm",
             shouldDisable ? "bg-gray-200 cursor-not-allowed" : "bg-white"
-          }`}
+          )}
         />
       )}
 

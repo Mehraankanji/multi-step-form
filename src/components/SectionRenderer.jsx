@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 export const NO_AUTOFILL_FIELDS = ["declaration", "signature"];
+
 export default function SectionRenderer({
   part,
   sectionKey,
@@ -33,22 +34,27 @@ export default function SectionRenderer({
   const savedValues = fullState[part][sectionKey] || {};
   const allFilled = gatherFilledValues(fullState);
 
+  // ---------------------- DEFAULT VALUES ----------------------
   const defaultValues = {};
-  fields.forEach((f) => {
-    if (NO_AUTOFILL_TYPES.includes(f.type)) {
-      if (f.type === "file") defaultValues[f.name] = "";
-      else if (f.type === "checkbox") defaultValues[f.name] = false;
-      else defaultValues[f.name] = "";
+  fields.forEach((field) => {
+    if (NO_AUTOFILL_TYPES.includes(field.type)) {
+      defaultValues[field.name] =
+        field.type === "checkbox" ? false : field.type === "file" ? "" : "";
       return;
     }
-    if (f.type === "file") defaultValues[f.name] = "";
-    else if (
-      ["expense-group", "checkbox-group", "yes-no-group"].includes(f.type)
-    )
-      defaultValues[f.name] = savedValues[f.name] ?? allFilled[f.name] ?? {};
-    else defaultValues[f.name] = savedValues[f.name] ?? allFilled[f.name] ?? "";
+
+    if (
+      ["expense-group", "checkbox-group", "yes-no-group"].includes(field.type)
+    ) {
+      defaultValues[field.name] =
+        savedValues[field.name] ?? allFilled[field.name] ?? {};
+    } else {
+      defaultValues[field.name] =
+        savedValues[field.name] ?? allFilled[field.name] ?? "";
+    }
   });
 
+  // ---------------------- FORM ----------------------
   const form = useForm({
     defaultValues,
     onSubmit: async ({ value, formApi }) => {
@@ -68,7 +74,7 @@ export default function SectionRenderer({
     },
   });
 
-  // Auto-fill A6
+  // ---------------------- AUTO-FILL A6 ----------------------
   useEffect(() => {
     if (part !== "A" || sectionKey !== "A6") return;
     const a5 = fullState.A?.A5;
@@ -93,17 +99,20 @@ export default function SectionRenderer({
     form.setFieldValue("remainingHospitalBill", remaining);
   }, [part, sectionKey, fullState.A?.A5]);
 
-  // Auto-fill B2
+  // ---------------------- AUTO-FILL B2 ----------------------
   useEffect(() => {
     if (part !== "B" || sectionKey !== "B2") return;
     const a5 = fullState.A?.A5;
     if (!a5) return;
+
     form.setFieldValue("totalClaimedAmount", getB2TotalClaimed(a5));
   }, [part, sectionKey, fullState.A?.A5]);
 
+  // ---------------------- HELPERS ----------------------
   form.calculateAge = calculateAge;
   form.calculateRemainingHospitalBill = calculateRemainingHospitalBill;
 
+  // ---------------------- RENDER ----------------------
   return (
     <Card className="rounded-2xl shadow-lg border bg-white">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -167,7 +176,7 @@ export default function SectionRenderer({
               type="submit"
               className="px-12 bg-blue-600 hover:bg-blue-700"
             >
-              {isLastStep ? "Submit Claim" : " Next →"}
+              {isLastStep ? "Submit Claim" : "Next →"}
             </Button>
           </div>
         </form>
