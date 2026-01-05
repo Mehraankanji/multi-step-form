@@ -38,28 +38,6 @@ export const validatorsByType = {
 
   date: (value, label) => {
     if (!value) return `${label} is required`;
-    const date = new Date(value);
-    if (isNaN(date.getTime())) return `${label} must be a valid date`;
-    return undefined;
-  },
-
-  "datetime-local": (value, label) => {
-    if (!value) return `${label} is required`;
-
-    const dateTime = new Date(value);
-    if (isNaN(dateTime.getTime())) {
-      return `${label} must be a valid date and time`;
-    }
-    const now = new Date();
-    if (dateTime > now) {
-      return `${label} cannot be in the future`;
-    }
-
-    return undefined;
-  },
-
-  date: (value, label) => {
-    if (!value) return `${label} is required`;
 
     const selectedDate = new Date(value);
     if (isNaN(selectedDate.getTime())) return `${label} must be a valid date`;
@@ -88,6 +66,7 @@ export const validatorsByType = {
 
     return undefined;
   },
+  
 
   file: (value, label) => {
     if (!value) return `${label} is required`;

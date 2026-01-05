@@ -116,10 +116,11 @@ export default function SectionRenderer({
         </Button>
       </CardHeader>
 
-      <Separator /> 
+      <Separator />
 
       <CardContent className="pt-6">
         <form
+          noValidate
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();

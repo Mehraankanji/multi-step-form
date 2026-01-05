@@ -96,6 +96,18 @@ export default function FieldRenderer({
     }
   };
 
+  const getMaxValue = () => {
+    if (field.type === "date") {
+      return new Date().toISOString().split("T")[0];
+    }
+
+    if (field.type === "datetime-local") {
+      return new Date().toISOString().slice(0, 16);
+    }
+
+    return undefined;
+  };
+
   return (
     <div
       className={`flex flex-col ${
@@ -260,6 +272,7 @@ export default function FieldRenderer({
           type={field.type === "phone" ? "text" : field.type}
           value={field.type === "file" ? undefined : fieldApi.state.value || ""}
           disabled={shouldDisable}
+          max={getMaxValue()}
           onChange={(e) => {
             if (shouldDisable) return;
 
