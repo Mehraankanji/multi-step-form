@@ -1,16 +1,38 @@
-# React + Vite
+# Multi-Step Claim Form (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern **multi-step claim form application** built using **React + Vite**.  
+---
 
-Currently, two official plugins are available:
+## 🚀 Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 18**
+- **Vite**
+- **Redux Toolkit** – global state management
+- **TanStack Form** – advanced form handling & validation
+- **TanStack Query** – async data handling & caching
+- **Tailwind CSS** – UI styling
+- **shadcn/ui** – reusable UI components
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features
 
-## Expanding the ESLint configuration
+- 🔹 Multi-step form with section-based navigation
+- 🔹 Centralized validation logic (no duplicate validation)
+- 🔹 Browser-native validation disabled (`noValidate`)
+- 🔹 Auto-filled and computed fields 
+- 🔹 Expense group auto-calculation
+- 🔹 Age auto-calculation from DOB
+- 🔹 Redux-powered persistence across steps
+- 🔹 Clean error handling and UX-friendly messages
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🧠 Validation Strategy
+
+- All validations are handled via a **single validation entry point**
+- Validation is **type-based** (text, date, datetime, radio, checkbox-group, etc.)
+- Prevents future date selection for date & datetime fields
+- Avoids browser-native validation conflicts
+- Auto-filled fields are excluded from validation
+
